@@ -35,6 +35,31 @@ class ConfigTest {
         assertEquals(Config.IMAGE_OUTPUT_EXTERNAL, config.getImageOutput());
         assertEquals(Config.IMAGE_FORMAT_PNG, config.getImageFormat());
         assertEquals(Config.READING_ORDER_XYCUT, config.getReadingOrder());
+        assertEquals(0, config.getHybridHeadingOffset());
+    }
+
+    @Test
+    void testSetHybridHeadingOffset() {
+        Config config = new Config();
+        config.setHybridHeadingOffset(2);
+        assertEquals(2, config.getHybridHeadingOffset());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-5, 0, 5})
+    void testSetHybridHeadingOffsetAcceptsRange(int offset) {
+        Config config = new Config();
+        config.setHybridHeadingOffset(offset);
+        assertEquals(offset, config.getHybridHeadingOffset());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-6, 6})
+    void testSetHybridHeadingOffsetRejectsOutOfRange(int offset) {
+        Config config = new Config();
+        IllegalArgumentException ex =
+            assertThrows(IllegalArgumentException.class, () -> config.setHybridHeadingOffset(offset));
+        assertTrue(ex.getMessage().contains("Invalid hybrid heading offset"));
     }
 
     @Test
