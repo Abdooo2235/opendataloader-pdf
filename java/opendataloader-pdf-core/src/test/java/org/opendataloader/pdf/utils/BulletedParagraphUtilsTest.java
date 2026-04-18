@@ -16,6 +16,8 @@
 package org.opendataloader.pdf.utils;
 
 import org.junit.jupiter.api.Test;
+import org.verapdf.wcag.algorithms.entities.SemanticParagraph;
+import org.verapdf.wcag.algorithms.entities.SemanticTextNode;
 import org.verapdf.wcag.algorithms.entities.content.TextChunk;
 import org.verapdf.wcag.algorithms.entities.content.TextLine;
 import org.verapdf.wcag.algorithms.entities.geometry.BoundingBox;
@@ -36,10 +38,16 @@ class BulletedParagraphUtilsTest {
 
     @Test
     void testGetLabelRegexForNumberedLabel() {
-        assertNotNull(BulletedParagraphUtils.getLabelRegex(createLine("1. test")));
+        assertNotNull(BulletedParagraphUtils.getLabelRegex(createTextNode("1. test")));
     }
 
     private static TextLine createLine(String value) {
         return new TextLine(new TextChunk(new BoundingBox(0), value, 10, 20.0));
+    }
+
+    private static SemanticTextNode createTextNode(String value) {
+        SemanticParagraph paragraph = new SemanticParagraph();
+        paragraph.add(createLine(value));
+        return paragraph;
     }
 }

@@ -28,6 +28,8 @@ import org.opendataloader.pdf.hybrid.HybridConfig;
  * Use this class to specify output formats, text processing options, and other settings.
  */
 public class Config {
+    public static final int HYBRID_HEADING_OFFSET_MIN = -5;
+    public static final int HYBRID_HEADING_OFFSET_MAX = 5;
     /** Reading order option: no sorting, keeps PDF COS object order. */
     public static final String READING_ORDER_OFF = "off";
     /** Reading order option: XY-Cut++ algorithm for layout-aware sorting. */
@@ -836,6 +838,16 @@ public class Config {
      * @param hybridHeadingOffset heading level offset.
      */
     public void setHybridHeadingOffset(int hybridHeadingOffset) {
+        if (hybridHeadingOffset < HYBRID_HEADING_OFFSET_MIN || hybridHeadingOffset > HYBRID_HEADING_OFFSET_MAX) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Invalid hybrid heading offset '%d'. Supported range is %d to %d.",
+                    hybridHeadingOffset,
+                    HYBRID_HEADING_OFFSET_MIN,
+                    HYBRID_HEADING_OFFSET_MAX
+                )
+            );
+        }
         this.hybridHeadingOffset = hybridHeadingOffset;
     }
 

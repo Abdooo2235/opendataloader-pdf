@@ -34,9 +34,9 @@ def convert_pdf(
     hybrid: str | None = None,
     hybrid_mode: str | None = None,
     hybrid_url: str | None = None,
-    hybrid_timeout: str | None = None,
+    hybrid_timeout: int | None = None,
     hybrid_fallback: bool = False,
-    hybrid_heading_offset: str | None = None,
+    hybrid_heading_offset: int | None = None,
     image_dir: str | None = None,
 ) -> str:
     """Convert a PDF file to the specified format.

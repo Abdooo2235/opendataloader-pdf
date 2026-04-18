@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Transforms Docling JSON output to OpenDataLoader IObject hierarchy.
@@ -93,9 +91,6 @@ public class DoclingSchemaTransformer implements HybridSchemaTransformer {
     // Docling coordinate origins
     private static final String COORD_ORIGIN_BOTTOMLEFT = "BOTTOMLEFT";
     private static final String COORD_ORIGIN_TOPLEFT = "TOPLEFT";
-    private static final Pattern HEADING_NUMBERING_PATTERN =
-        Pattern.compile("^\\s*(\\d+(?:\\.\\d+)*)(?:[\\.)])?\\s+.*$");
-
     private final int headingLevelOffset;
 
     public DoclingSchemaTransformer() {
@@ -332,50 +327,21 @@ public class DoclingSchemaTransformer implements HybridSchemaTransformer {
     }
 
     private int inferHeadingLevel(String text, JsonNode textNode) {
-        Integer numberingLevel = extractNumberingLevel(text);
-        if (numberingLevel != null) {
-            return numberingLevel;
-        }
-
+        int baseLevel = 1;
         JsonNode meta = textNode.get("meta");
-        if (meta != null && meta.has("level")) {
-            return Math.max(1, meta.get("level").asInt(1));
+        if (meta != null && meta.has("level") && meta.get("level").canConvertToInt()) {
+            baseLevel = Math.max(HybridHeadingLevelUtils.MIN_HEADING_LEVEL, meta.get("level").asInt(1));
         }
 
-        return 1;
-    }
-
-    private Integer extractNumberingLevel(String text) {
-        if (text == null) {
-            return null;
+        Integer numberingLevel = HybridHeadingLevelUtils.extractNumberingLevel(text);
+        if (numberingLevel == null) {
+            return baseLevel;
         }
-        Matcher matcher = HEADING_NUMBERING_PATTERN.matcher(text);
-        if (!matcher.matches()) {
-            return null;
-        }
-
-        String numbering = matcher.group(1);
-        if (!numbering.contains(".")) {
-            return null;
-        }
-        int dots = 0;
-        for (int i = 0; i < numbering.length(); i++) {
-            if (numbering.charAt(i) == '.') {
-                dots++;
-            }
-        }
-        return dots + 1;
+        return Math.max(baseLevel, numberingLevel);
     }
 
     private int applyHeadingOffset(int level) {
-        long adjusted = (long) level + (long) headingLevelOffset;
-        if (adjusted < 1L) {
-            return 1;
-        }
-        if (adjusted > 6L) {
-            return 6;
-        }
-        return (int) adjusted;
+        return HybridHeadingLevelUtils.clampWithOffset(level, headingLevelOffset);
     }
 
     /**

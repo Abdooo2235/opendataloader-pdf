@@ -153,6 +153,46 @@ public class DoclingSchemaTransformerTest {
     }
 
     @Test
+    void testTransformSectionHeaderInfersLevelFromSingleSegmentNumbering() {
+        ObjectNode json = createDoclingDocument();
+        ArrayNode texts = json.putArray("texts");
+
+        ObjectNode headerNode = texts.addObject();
+        headerNode.put("label", "section_header");
+        headerNode.put("text", "3 Introduction");
+        addProvenance(headerNode, 1, 100, 750, 300, 780);
+
+        HybridResponse response = new HybridResponse("", json, null);
+        Map<Integer, Double> pageHeights = new HashMap<>();
+        pageHeights.put(1, 842.0);
+
+        List<List<IObject>> result = transformer.transform(response, pageHeights);
+        SemanticHeading heading = (SemanticHeading) result.get(0).get(0);
+        Assertions.assertEquals(1, heading.getHeadingLevel());
+    }
+
+    @Test
+    void testTransformSectionHeaderUsesMaxOfMetaAndNumbering() {
+        ObjectNode json = createDoclingDocument();
+        ArrayNode texts = json.putArray("texts");
+
+        ObjectNode headerNode = texts.addObject();
+        headerNode.put("label", "section_header");
+        headerNode.put("text", "2.3 Platform");
+        ObjectNode meta = headerNode.putObject("meta");
+        meta.put("level", 4);
+        addProvenance(headerNode, 1, 100, 750, 300, 780);
+
+        HybridResponse response = new HybridResponse("", json, null);
+        Map<Integer, Double> pageHeights = new HashMap<>();
+        pageHeights.put(1, 842.0);
+
+        List<List<IObject>> result = transformer.transform(response, pageHeights);
+        SemanticHeading heading = (SemanticHeading) result.get(0).get(0);
+        Assertions.assertEquals(4, heading.getHeadingLevel());
+    }
+
+    @Test
     void testTransformSectionHeaderWithOffset() {
         transformer = new DoclingSchemaTransformer(2);
 

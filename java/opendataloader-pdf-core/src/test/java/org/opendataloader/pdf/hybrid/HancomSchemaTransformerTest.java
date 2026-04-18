@@ -151,6 +151,40 @@ public class HancomSchemaTransformerTest {
     }
 
     @Test
+    void testTransformHeadingInfersNumericPrefixLevel() {
+        ObjectNode json = createVisualInfoDto();
+        ArrayNode elements = (ArrayNode) json.get("elements");
+
+        addElement(elements, "HEADING", "heading", "2.3 Architecture", 0, 100, 62, 200, 30);
+
+        HybridResponse response = new HybridResponse("", json, null);
+        Map<Integer, Double> pageHeights = new HashMap<>();
+        pageHeights.put(1, 842.0);
+
+        List<List<IObject>> result = transformer.transform(response, pageHeights);
+        SemanticHeading heading = (SemanticHeading) result.get(0).get(0);
+        Assertions.assertEquals(2, heading.getHeadingLevel());
+    }
+
+    @Test
+    void testTransformHeadingUsesMaxOfContentLevelAndNumericPrefix() {
+        ObjectNode json = createVisualInfoDto();
+        ArrayNode elements = (ArrayNode) json.get("elements");
+        addElement(elements, "HEADING", "heading", "1.2 Scope", 0, 100, 62, 200, 30);
+        ObjectNode headingElement = (ObjectNode) elements.get(0);
+        ObjectNode content = (ObjectNode) headingElement.get("content");
+        content.put("level", 4);
+
+        HybridResponse response = new HybridResponse("", json, null);
+        Map<Integer, Double> pageHeights = new HashMap<>();
+        pageHeights.put(1, 842.0);
+
+        List<List<IObject>> result = transformer.transform(response, pageHeights);
+        SemanticHeading heading = (SemanticHeading) result.get(0).get(0);
+        Assertions.assertEquals(4, heading.getHeadingLevel());
+    }
+
+    @Test
     void testFilterPageHeaderFooter() {
         ObjectNode json = createVisualInfoDto();
         ArrayNode elements = (ArrayNode) json.get("elements");

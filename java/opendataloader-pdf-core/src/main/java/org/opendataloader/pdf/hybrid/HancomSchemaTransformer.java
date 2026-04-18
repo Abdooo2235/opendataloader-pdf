@@ -264,7 +264,7 @@ public class HancomSchemaTransformer implements HybridSchemaTransformer {
                 object = createParagraph(text, bbox);
                 break;
             case TYPE_HEADING:
-                object = createHeading(text, bbox);
+                object = createHeading(text, bbox, element);
                 break;
             case TYPE_TABLE:
                 object = transformTable(element, bbox, pageIndex, pageHeight);
@@ -308,7 +308,7 @@ public class HancomSchemaTransformer implements HybridSchemaTransformer {
     /**
      * Creates a SemanticHeading.
      */
-    private SemanticHeading createHeading(String text, BoundingBox bbox) {
+    private SemanticHeading createHeading(String text, BoundingBox bbox, JsonNode element) {
         TextChunk textChunk = new TextChunk(bbox, text, 12.0, 12.0);
         textChunk.adjustSymbolEndsToBoundingBox(null);
         TextLine textLine = new TextLine(textChunk);
@@ -316,22 +316,29 @@ public class HancomSchemaTransformer implements HybridSchemaTransformer {
         SemanticHeading heading = new SemanticHeading();
         heading.add(textLine);
         heading.setRecognizedStructureId(StaticLayoutContainers.incrementContentId());
-        heading.setHeadingLevel(applyHeadingOffset(1));
+        heading.setHeadingLevel(applyHeadingOffset(inferHeadingLevel(text, element)));
         // Set semantic score to avoid NullPointerException in ListUtils.isContainsHeading()
         heading.setCorrectSemanticScore(1.0);
 
         return heading;
     }
 
+    private int inferHeadingLevel(String text, JsonNode element) {
+        int baseLevel = 1;
+        JsonNode contentNode = element.get("content");
+        if (contentNode != null && contentNode.has("level") && contentNode.get("level").canConvertToInt()) {
+            baseLevel = Math.max(HybridHeadingLevelUtils.MIN_HEADING_LEVEL, contentNode.get("level").asInt(1));
+        }
+
+        Integer numberingLevel = HybridHeadingLevelUtils.extractNumberingLevel(text);
+        if (numberingLevel == null) {
+            return baseLevel;
+        }
+        return Math.max(baseLevel, numberingLevel);
+    }
+
     private int applyHeadingOffset(int level) {
-        long adjusted = (long) level + (long) headingLevelOffset;
-        if (adjusted < 1L) {
-            return 1;
-        }
-        if (adjusted > 6L) {
-            return 6;
-        }
-        return (int) adjusted;
+        return HybridHeadingLevelUtils.clampWithOffset(level, headingLevelOffset);
     }
 
     /**

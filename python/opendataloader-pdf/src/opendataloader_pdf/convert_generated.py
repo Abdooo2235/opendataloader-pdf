@@ -34,9 +34,9 @@ def convert(
     hybrid: Optional[str] = None,
     hybrid_mode: Optional[str] = None,
     hybrid_url: Optional[str] = None,
-    hybrid_timeout: Optional[str] = None,
+    hybrid_timeout: Optional[int] = None,
     hybrid_fallback: bool = False,
-    hybrid_heading_offset: Optional[str] = None,
+    hybrid_heading_offset: Optional[int] = None,
     to_stdout: bool = False,
 ) -> None:
     """
@@ -134,12 +134,12 @@ def convert(
         args.extend(["--hybrid-mode", hybrid_mode])
     if hybrid_url:
         args.extend(["--hybrid-url", hybrid_url])
-    if hybrid_timeout:
-        args.extend(["--hybrid-timeout", hybrid_timeout])
+    if hybrid_timeout is not None:
+        args.extend(["--hybrid-timeout", str(hybrid_timeout)])
     if hybrid_fallback:
         args.append("--hybrid-fallback")
-    if hybrid_heading_offset:
-        args.extend(["--hybrid-heading-offset", hybrid_heading_offset])
+    if hybrid_heading_offset is not None:
+        args.extend(["--hybrid-heading-offset", str(hybrid_heading_offset)])
     if to_stdout:
         args.append("--to-stdout")
 

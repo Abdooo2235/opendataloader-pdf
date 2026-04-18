@@ -45,6 +45,23 @@ class ConfigTest {
         assertEquals(2, config.getHybridHeadingOffset());
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {-5, 0, 5})
+    void testSetHybridHeadingOffsetAcceptsRange(int offset) {
+        Config config = new Config();
+        config.setHybridHeadingOffset(offset);
+        assertEquals(offset, config.getHybridHeadingOffset());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-6, 6})
+    void testSetHybridHeadingOffsetRejectsOutOfRange(int offset) {
+        Config config = new Config();
+        IllegalArgumentException ex =
+            assertThrows(IllegalArgumentException.class, () -> config.setHybridHeadingOffset(offset));
+        assertTrue(ex.getMessage().contains("Invalid hybrid heading offset"));
+    }
+
     @Test
     void testSetImageOutputAffectsIsEmbedImages() {
         Config config = new Config();
