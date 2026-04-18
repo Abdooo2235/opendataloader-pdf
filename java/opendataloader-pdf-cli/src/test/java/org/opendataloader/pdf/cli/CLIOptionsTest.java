@@ -479,4 +479,14 @@ class CLIOptionsTest {
 
         assertEquals(2, config.getHybridHeadingOffset());
     }
+
+    @Test
+    void testCreateConfig_withHybridHeadingOffsetOutOfRange() throws ParseException {
+        String[] args = {"--hybrid", "docling", "--hybrid-heading-offset", "10", testPdf.getAbsolutePath()};
+        CommandLine cmd = parser.parse(options, args);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> CLIOptions.createConfigFromCommandLine(cmd));
+        assertTrue(ex.getMessage().contains("Supported range is -5 to 5"));
+    }
 }

@@ -527,6 +527,13 @@ public class CLIOptions {
             if (offsetValue != null && !offsetValue.trim().isEmpty()) {
                 try {
                     int offset = Integer.parseInt(offsetValue.trim());
+                    if (offset < -5 || offset > 5) {
+                        throw new IllegalArgumentException(
+                                String.format(
+                                        "Invalid hybrid heading offset '%d'. Supported range is -5 to 5 "
+                                                + "(Docling heading levels are clamped to 1..6).",
+                                        offset));
+                    }
                     config.setHybridHeadingOffset(offset);
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException(

@@ -355,6 +355,9 @@ public class DoclingSchemaTransformer implements HybridSchemaTransformer {
         }
 
         String numbering = matcher.group(1);
+        if (!numbering.contains(".")) {
+            return null;
+        }
         int dots = 0;
         for (int i = 0; i < numbering.length(); i++) {
             if (numbering.charAt(i) == '.') {
