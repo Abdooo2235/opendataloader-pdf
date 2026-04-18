@@ -368,11 +368,14 @@ public class DoclingSchemaTransformer implements HybridSchemaTransformer {
     }
 
     private int applyHeadingOffset(int level) {
-        int adjusted = level + headingLevelOffset;
-        if (adjusted < 1) {
+        long adjusted = (long) level + (long) headingLevelOffset;
+        if (adjusted < 1L) {
             return 1;
         }
-        return Math.min(6, adjusted);
+        if (adjusted > 6L) {
+            return 6;
+        }
+        return (int) adjusted;
     }
 
     /**

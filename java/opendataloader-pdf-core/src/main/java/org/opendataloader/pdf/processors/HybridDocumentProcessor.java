@@ -526,7 +526,7 @@ public class HybridDocumentProcessor {
 
         // hancom uses HancomSchemaTransformer
         if (Config.HYBRID_HANCOM.equals(hybrid)) {
-            return new HancomSchemaTransformer();
+            return new HancomSchemaTransformer(config.getHybridHeadingOffset());
         }
 
         throw new IllegalArgumentException("Unsupported hybrid backend: " + hybrid);
