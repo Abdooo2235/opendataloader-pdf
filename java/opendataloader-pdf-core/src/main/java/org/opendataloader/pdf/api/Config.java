@@ -28,6 +28,8 @@ import org.opendataloader.pdf.hybrid.HybridConfig;
  * Use this class to specify output formats, text processing options, and other settings.
  */
 public class Config {
+    public static final int HYBRID_HEADING_OFFSET_MIN = -5;
+    public static final int HYBRID_HEADING_OFFSET_MAX = 5;
     /** Reading order option: no sorting, keeps PDF COS object order. */
     public static final String READING_ORDER_OFF = "off";
     /** Reading order option: XY-Cut++ algorithm for layout-aware sorting. */
@@ -82,6 +84,7 @@ public class Config {
     private final FilterConfig filterConfig = new FilterConfig();
     private String hybrid = HYBRID_OFF;
     private final HybridConfig hybridConfig = new HybridConfig();
+    private int hybridHeadingOffset = 0;
     private boolean includeHeaderFooter = false;
     private boolean detectStrikethrough = false;
 
@@ -816,6 +819,36 @@ public class Config {
      */
     public HybridConfig getHybridConfig() {
         return hybridConfig;
+    }
+
+    /**
+     * Gets the heading level offset applied to hybrid backend headings.
+     *
+     * <p>Positive values demote headings (e.g., H1 -> H2). Negative values promote headings.
+     *
+     * @return heading level offset, default 0.
+     */
+    public int getHybridHeadingOffset() {
+        return hybridHeadingOffset;
+    }
+
+    /**
+     * Sets the heading level offset applied to hybrid backend headings.
+     *
+     * @param hybridHeadingOffset heading level offset.
+     */
+    public void setHybridHeadingOffset(int hybridHeadingOffset) {
+        if (hybridHeadingOffset < HYBRID_HEADING_OFFSET_MIN || hybridHeadingOffset > HYBRID_HEADING_OFFSET_MAX) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Invalid hybrid heading offset '%d'. Supported range is %d to %d.",
+                    hybridHeadingOffset,
+                    HYBRID_HEADING_OFFSET_MIN,
+                    HYBRID_HEADING_OFFSET_MAX
+                )
+            );
+        }
+        this.hybridHeadingOffset = hybridHeadingOffset;
     }
 
     /**
