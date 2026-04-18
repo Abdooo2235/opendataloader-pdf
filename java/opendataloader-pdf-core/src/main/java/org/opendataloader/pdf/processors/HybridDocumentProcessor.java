@@ -521,7 +521,7 @@ public class HybridDocumentProcessor {
 
         // docling and docling-fast (deprecated) use DoclingSchemaTransformer
         if (Config.HYBRID_DOCLING.equals(hybrid) || Config.HYBRID_DOCLING_FAST.equals(hybrid)) {
-            return new DoclingSchemaTransformer();
+            return new DoclingSchemaTransformer(config.getHybridHeadingOffset());
         }
 
         // hancom uses HancomSchemaTransformer
